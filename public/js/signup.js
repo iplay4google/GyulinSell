@@ -1,31 +1,30 @@
-const form = document.getElementById("signupForm");
+// signup.js
+const signupForm = document.getElementById('signup-form');
 
-form.addEventListener("submit", async (e) => {
+signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const username = document.getElementById("username").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
 
-  const res = await fetch("/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username,
-      email,
-      password
-    })
-  });
+  try {
+    const res = await fetch('/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if(data.error){
-    alert(data.error);
-    return;
+    if (data.success) {
+      alert('Account created! You can now log in.');
+      window.location.href = '/login.html';
+    } else {
+      alert(data.error || 'Something went wrong');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error connecting to server.');
   }
-
-  alert("Account created!");
-  window.location.href = "/login.html";
 });
