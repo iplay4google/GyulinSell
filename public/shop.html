@@ -1,21 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="css/shop.css">
-    <title>Shop</title>
-    <script src="https://js.stripe.com/v3/"></script>
-</head>
-<body>
-    <h1>Shop</h1>
-    <div id="products">
-        <!-- Example product -->
-        <div class="product">
-            <h3>Product 1</h3>
-            <p>$10</p>
-            <button class="buy-btn" data-price="1000">Buy</button>
-        </div>
-    </div>
+// public/shop.js
+async function loadProducts() {
+  const res = await fetch('/products');
+  const products = await res.json();
 
-    <script src="js/shop.js"></script>
-</body>
-</html>
+  const container = document.getElementById('products');
+  container.innerHTML = '';
+
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  products.forEach(p => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <h3>${p.name}</h3>
+      <p>Price: $${p.price}</p>
+      <button ${user ? '' : 'disabled'} onclick="buyProduct('${p.name}', ${p.price})">Buy</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function buyProduct(name, price) {
+  alert(`Buy ${name} for $${price} (Stripe checkout integration goes here)`);
+}
+
+loadProducts();

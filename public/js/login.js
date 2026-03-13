@@ -1,11 +1,16 @@
-// login.js
-const loginForm = document.getElementById('login-form');
+// public/login.js
+const form = document.getElementById('loginForm');
 
-loginForm.addEventListener('submit', async (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const identifier = document.getElementById('identifier').value.trim(); // Name or Email
+  const identifier = document.getElementById('identifier').value.trim();
   const password = document.getElementById('password').value.trim();
+
+  if (!identifier || !password) {
+    alert('All fields are required!');
+    return;
+  }
 
   try {
     const res = await fetch('/login', {
@@ -16,19 +21,18 @@ loginForm.addEventListener('submit', async (e) => {
 
     const data = await res.json();
 
-    if (data.success) {
-      alert('Logged in!');
-      // Owner redirected to owner page
-      if (data.user.isOwner) {
+    if (res.ok) {
+      if (data.role === 'owner') {
         window.location.href = '/owner.html';
-      } else {
+      } else if (data.role === 'user') {
+        localStorage.setItem('user', JSON.stringify(data));
         window.location.href = '/shop.html';
       }
     } else {
-      alert(data.error || 'Login failed');
+      alert(data.message);
     }
   } catch (err) {
     console.error(err);
-    alert('Error connecting to server.');
+    alert('Error logging in');
   }
 });

@@ -1,29 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log In</title>
-  <link rel="stylesheet" href="login.css">
+<meta charset="UTF-8">
+<title>Login</title>
+<script defer src="login.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h2>Log In</h2>
-    <form id="login-form">
-      <label for="identifier">Name or Email</label>
-      <input type="text" id="identifier" required placeholder="Name or Email">
-
-      <label for="password">Password</label>
-      <input type="password" id="password" required placeholder="Password">
-
-      <button type="submit">Log In</button>
-    </form>
-    <p>
-      Don't have an account? <a href="signup.html">Sign Up</a><br>
-      Or <a href="shop.html">Continue as Guest</a>
-    </p>
-  </div>
-
-  <script src="login.js"></script>
+<h2>Login</h2>
+<form id="loginForm">
+  <input type="text" id="identifier" placeholder="Email or Name" required /><br>
+  <input type="password" id="password" placeholder="Password" required /><br>
+  <button type="submit">Login</button>
+</form>
+<p>Don't have an account? <a href="/signup.html">Sign Up</a></p>
+<p>Or <a href="/shop.html">Continue as Guest</a></p>
 </body>
 </html>
