@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>GyulinSell</title>
-<link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/index.css">
+    <title>GyulinSell</title>
 </head>
 <body>
-<div id="buttons">
-    <button id="login-btn">Already have an account?</button>
-    <button id="register-btn">Make a new account</button>
-    <button id="guest-btn">Become a Guest</button>
-</div>
+    <h1>Welcome to GyulinSell</h1>
+    <button onclick="location.href='login.html'">Already have an account?</button>
+    <button id="guest-btn">Become a guest</button>
 
-<script>
-document.getElementById('login-btn').onclick = () => window.location.href = 'login.html';
-document.getElementById('register-btn').onclick = () => window.location.href = 'register.html';
-document.getElementById('guest-btn').onclick = () => window.location.href = 'shop.html?guest=true';
-</script>
+    <script>
+        document.getElementById("guest-btn").addEventListener("click", () => {
+            localStorage.setItem("isGuest", "true");
+            location.href = "shop.html";
+        });
+    </script>
 </body>
 </html>

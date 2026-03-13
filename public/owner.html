@@ -1,15 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="css/owner.css">
+<title>Owner Dashboard</title>
+</head>
+<body>
 <h1>Owner Dashboard</h1>
-<ul id="orders"></ul>
 
-<script>
-fetch('/owner/orders')
-  .then(r => r.json())
-  .then(orders => {
-    const ul = document.getElementById('orders');
-    orders.forEach(o => {
-      const li = document.createElement('li');
-      li.textContent = `${o.customerName} (${o.customerEmail}) - ${JSON.stringify(o.cart)}`;
-      ul.appendChild(li);
-    });
-  });
-</script>
+<h2>Paid Orders</h2>
+<div id="orders"></div>
+
+<h2>Manage Products</h2>
+<div id="products"></div>
+
+<h3>Add Product</h3>
+<input id="prodName" placeholder="Name">
+<input id="prodPrice" placeholder="Price">
+<input id="prodDesc" placeholder="Description">
+<button id="addProd">Add Product</button>
+
+<script src="js/owner.js"></script>
+</body>
+</html>

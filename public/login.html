@@ -1,38 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Login</title>
-<link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Login</title>
 </head>
 <body>
-<form id="login-form">
-    <input type="text" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-</form>
+    <h1>Login</h1>
+    <form id="login-form">
+        <input type="text" id="email" placeholder="Email"><br>
+        <input type="password" id="password" placeholder="Password"><br>
+        <button type="submit">Login</button>
+    </form>
+    <button onclick="location.href='index.html'">Become a guest</button>
 
-<script>
-const form = document.getElementById('login-form');
-form.onsubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const res = await fetch('/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            email: formData.get('email'),
-            password: formData.get('password')
-        })
-    });
-    const data = await res.json();
-    if (data.success) {
-        if(data.role === 'owner') window.location.href = 'owner.html';
-        else window.location.href = 'shop.html';
-    } else {
-        alert('Invalid credentials');
-    }
-};
-</script>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", (e)=>{
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            if(email === "Owner3123" && password === "fTbo2bfIp3ThvyGC") {
+                localStorage.setItem("isOwner", "true");
+                location.href = "owner.html";
+            } else {
+                alert("Invalid credentials or guest login only");
+            }
+        });
+    </script>
 </body>
 </html>
