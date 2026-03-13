@@ -1,45 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up - Fun Ordering Site</title>
-<style>
-    body { font-family: 'Comic Sans MS', cursive, sans-serif; background: #FFFAE3; text-align: center; margin: 0; }
-    h1 { color: #FF5733; }
-    input { padding: 10px; margin: 5px; border-radius: 10px; border: 1px solid #FF5733; }
-    button { background: #33FF57; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-</style>
+    <meta charset="UTF-8">
+    <title>GyulinSell</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 100%;
+            background: #eee;
+            padding: 20px;
+        }
+
+        .sidebar button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .product {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .product button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<h1>Create Your Account</h1>
-<input type="text" id="username" placeholder="Username"><br>
-<input type="password" id="password" placeholder="Password"><br>
-<button onclick="signup()">Sign Up</button>
-<p id="msg" style="color:red;"></p>
-<p>Already have an account? <a href="login.html">Sign In</a></p>
+    <div class="sidebar">
+        <button id="guestBtn">Join as Guest</button>
+    </div>
 
-<script>
-// Pre-set special Owner account
-let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-if (!accounts['Owner3123']) {
-    accounts['Owner3123'] = 'fTbo2bfIp3ThvyGC';
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-}
+    <div class="content">
+        <h1>Welcome to GyulinSell</h1>
+        <div id="productsContainer">
+            <!-- Products will load here -->
+        </div>
+    </div>
 
-function signup() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-
-    if (accounts[username]) {
-        document.getElementById('msg').textContent = 'Username already exists!';
-    } else {
-        accounts[username] = password;
-        localStorage.setItem('accounts', JSON.stringify(accounts));
-        document.getElementById('msg').textContent = 'Account created! You can sign in now.';
-    }
-}
-</script>
+    <script src="shop.js"></script>
 </body>
 </html>
