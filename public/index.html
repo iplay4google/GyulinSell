@@ -6,15 +6,16 @@
 <link rel="stylesheet" href="index.css">
 </head>
 <body>
-  <div class="navbar">
-    <button onclick="window.location.href='login.html'">Sign In</button>
-    <button onclick="window.location.href='shop.html?guest=true'">Join as Guest</button>
-    <button onclick="window.location.href='login.html'">Make an Account</button>
-  </div>
-  <div class="container">
-    <h1>Welcome to GyulinSell!</h1>
-    <p>Browse and buy products easily.</p>
-  </div>
-  <script src="index.js"></script>
+<div id="buttons">
+    <button id="login-btn">Already have an account?</button>
+    <button id="register-btn">Make a new account</button>
+    <button id="guest-btn">Become a Guest</button>
+</div>
+
+<script>
+document.getElementById('login-btn').onclick = () => window.location.href = 'login.html';
+document.getElementById('register-btn').onclick = () => window.location.href = 'register.html';
+document.getElementById('guest-btn').onclick = () => window.location.href = 'shop.html?guest=true';
+</script>
 </body>
 </html>

@@ -9,62 +9,85 @@ app.use(express.json());
 
 const ORDERS_FILE = './orders.json'; // stores paid orders
 
-// Create Checkout Session
+// === LOGIN SYSTEM ===
+const OWNER_ACCOUNT = {
+  email: 'Owner3123',
+  password: 'fTbo2bfIp3ThvyGC'
+};
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  // Owner login
+  if (email === OWNER_ACCOUNT.email && password === OWNER_ACCOUNT.password) {
+    return res.json({ success: true, role: 'owner' });
+  }
+
+  // Normal user login logic here
+  // Example: you can check users.json if you store registered users
+  // const users = JSON.parse(fs.readFileSync('./users.json', 'utf-8'));
+  // const user = users.find(u => u.email === email && u.password === password);
+  // if (user) return res.json({ success: true, role: 'user', email: user.email });
+
+  return res.status(401).json({ success: false, message: 'Invalid credentials' });
+});
+
+// === STRIPE CHECKOUT ===
 app.post('/create-checkout-session', async (req, res) => {
-    try {
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: req.body.items,
-            mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL}/success.html`,
-            cancel_url: `${process.env.FRONTEND_URL}/shop.html`,
-        });
-        res.json({ url: session.url });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: req.body.items,
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/success.html`,
+      cancel_url: `${process.env.FRONTEND_URL}/shop.html`,
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Stripe webhook to save paid orders
 app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || ''; // set this in Render if using webhook
-    let event;
+  const sig = req.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || ''; // set this in Render if using webhook
+  let event;
 
-    try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    } catch (err) {
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    // Read existing orders
+    let orders = [];
+    if (fs.existsSync(ORDERS_FILE)) {
+      orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
     }
 
-    if (event.type === 'checkout.session.completed') {
-        const session = event.data.object;
+    // Add new paid order
+    orders.push({
+      name: session.customer_details.name,
+      email: session.customer_details.email,
+      items: session.display_items || [],
+      total: session.amount_total / 100
+    });
 
-        // Read existing orders
-        let orders = [];
-        if (fs.existsSync(ORDERS_FILE)) {
-            orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
-        }
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+  }
 
-        // Add new paid order
-        orders.push({
-            name: session.customer_details.name,
-            email: session.customer_details.email,
-            items: session.display_items || [],
-            total: session.amount_total / 100
-        });
-
-        fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
-    }
-
-    res.json({received: true});
+  res.json({received: true});
 });
 
 // Owner page data
 app.get('/owner/orders', (req, res) => {
-    if (!fs.existsSync(ORDERS_FILE)) return res.json([]);
-    const orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
-    res.json(orders);
+  if (!fs.existsSync(ORDERS_FILE)) return res.json([]);
+  const orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
+  res.json(orders);
 });
 
 app.listen(process.env.PORT || 3000, () => console.log('Server running on port', process.env.PORT || 3000));

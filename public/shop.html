@@ -4,15 +4,41 @@
 <meta charset="UTF-8">
 <title>Shop</title>
 <link rel="stylesheet" href="shop.css">
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
-<div class="navbar">
-  <button onclick="window.location.href='index.html'">Home</button>
-</div>
-<div class="container">
-  <h1>Shop</h1>
-  <div id="products"></div>
-</div>
-<script src="shop.js"></script>
+<h1>Products</h1>
+<div id="products"></div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const isGuest = urlParams.get('guest') === 'true';
+
+const products = [
+  { id: 1, name: 'Product 1', price: 1000 },
+  { id: 2, name: 'Product 2', price: 2000 },
+];
+
+const productsDiv = document.getElementById('products');
+
+products.forEach(p => {
+  const btn = document.createElement('button');
+  btn.innerText = `Buy ${p.name} ($${p.price/100})`;
+  btn.disabled = isGuest; // Guests cannot buy
+  btn.onclick = async () => {
+    const res = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ items: [{ price_data: { currency: 'usd', product_data: { name: p.name }, unit_amount: p.price }, quantity: 1 }] })
+    });
+    const data = await res.json();
+    window.location.href = data.url;
+  };
+  const div = document.createElement('div');
+  div.innerText = `${p.name} - $${p.price/100}`;
+  div.appendChild(btn);
+  productsDiv.appendChild(div);
+});
+</script>
 </body>
 </html>
