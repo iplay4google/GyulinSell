@@ -7,67 +7,53 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
+const USERS_FILE = './users.json';
 const ORDERS_FILE = './orders.json';
 const PRODUCTS_FILE = './products.json';
 
-// Owner authentication
-function checkOwner(req, res, next) {
-    const { email, password } = req.body;
-    if (email === process.env.OWNER_EMAIL && password === process.env.OWNER_PASSWORD) next();
-    else res.status(403).json({ error: "Not authorized" });
-}
+// --------------------
+// User authentication
+// --------------------
+app.post('/signup', (req, res) => {
+    const { username, email, password } = req.body;
+    let users = [];
+    if(fs.existsSync(USERS_FILE)) users = JSON.parse(fs.readFileSync(USERS_FILE));
 
-// Load products
-app.get('/products', (req, res) => {
-    const products = fs.existsSync(PRODUCTS_FILE) ? JSON.parse(fs.readFileSync(PRODUCTS_FILE)) : [];
-    res.json(products);
-});
+    if(users.find(u => u.username === username || u.email === email)){
+        return res.json({ success: false, message: 'User already exists' });
+    }
 
-// Add product (owner)
-app.post('/owner/products/add', checkOwner, (req, res) => {
-    const products = fs.existsSync(PRODUCTS_FILE) ? JSON.parse(fs.readFileSync(PRODUCTS_FILE)) : [];
-    products.push(req.body); // {name, price, description}
-    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+    users.push({ username, email, password, role: 'user' });
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
     res.json({ success: true });
 });
 
-// Edit product (owner)
-app.post('/owner/products/edit', checkOwner, (req, res) => {
-    const { index, updates } = req.body;
-    const products = JSON.parse(fs.readFileSync(PRODUCTS_FILE));
-    products[index] = { ...products[index], ...updates };
-    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
-    res.json({ success: true });
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    if(!fs.existsSync(USERS_FILE)) return res.json({ success: false, message: 'No users found' });
+
+    const users = JSON.parse(fs.readFileSync(USERS_FILE));
+    const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+
+    if(user) return res.json({ success: true, user });
+    return res.json({ success: false, message: 'Invalid credentials' });
 });
 
-// Remove product (owner)
-app.post('/owner/products/remove', checkOwner, (req, res) => {
-    const { index } = req.body;
-    const products = JSON.parse(fs.readFileSync(PRODUCTS_FILE));
-    products.splice(index, 1);
-    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
-    res.json({ success: true });
-});
-
-// Create Stripe checkout session
+// --------------------
+// Stripe checkout
+// --------------------
 app.post('/create-checkout-session', async (req, res) => {
-    if (req.body.isGuest) return res.status(403).json({ error: "Guests cannot buy" });
-    try {
-        const items = req.body.items.map(i => ({
-            price_data: {
-                currency: 'usd',
-                product_data: { name: i.name },
-                unit_amount: i.price * 100
-            },
-            quantity: i.quantity
-        }));
+    const user = req.body.user;
+    if(!user || user.role === 'guest') return res.status(403).json({error: 'Guests cannot buy products'});
 
+    try {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: items,
+            line_items: req.body.items,
             mode: 'payment',
             success_url: `${process.env.FRONTEND_URL}/success.html`,
             cancel_url: `${process.env.FRONTEND_URL}/shop.html`,
+            customer_email: user.email
         });
         res.json({ url: session.url });
     } catch (err) {
@@ -75,46 +61,31 @@ app.post('/create-checkout-session', async (req, res) => {
     }
 });
 
-// Stripe webhook to save paid orders
-app.post('/webhook', express.raw({type:'application/json'}), (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-    let event;
-
-    try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    } catch(err){
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    if(event.type === 'checkout.session.completed'){
-        const session = event.data.object;
-        let orders = fs.existsSync(ORDERS_FILE) ? JSON.parse(fs.readFileSync(ORDERS_FILE)) : [];
-        orders.push({
-            name: session.customer_details.name,
-            email: session.customer_details.email,
-            items: session.display_items || [],
-            total: session.amount_total/100
-        });
-        fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
-    }
-
-    res.json({received:true});
+// --------------------
+// Owner management
+// --------------------
+app.get('/owner/orders', (req, res) => {
+    if(!fs.existsSync(ORDERS_FILE)) return res.json([]);
+    const orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
+    res.json(orders.filter(o => o.paid)); // only show paid
 });
 
-// Owner orders page
-app.post('/owner/orders', checkOwner, (req, res) => {
-    const orders = fs.existsSync(ORDERS_FILE) ? JSON.parse(fs.readFileSync(ORDERS_FILE)) : [];
-    res.json(orders);
-});
-
-// Remove order (owner)
-app.post('/owner/orders/remove', checkOwner, (req,res)=>{
-    const { index } = req.body;
+app.post('/owner/remove-order', (req, res) => {
+    const { id } = req.body;
+    if(!fs.existsSync(ORDERS_FILE)) return res.json({ success: false });
     let orders = JSON.parse(fs.readFileSync(ORDERS_FILE));
-    orders.splice(index,1);
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders,null,2));
-    res.json({success:true});
+    orders = orders.filter(o => o.id !== id);
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+    res.json({ success: true });
 });
 
-app.listen(process.env.PORT || 3000, ()=>console.log("Server running on port", process.env.PORT || 3000));
+// --------------------
+// Products API
+// --------------------
+app.get('/products', (req, res) => {
+    if(!fs.existsSync(PRODUCTS_FILE)) return res.json([]);
+    const products = JSON.parse(fs.readFileSync(PRODUCTS_FILE));
+    res.json(products);
+});
+
+app.listen(process.env.PORT || 3000, () => console.log('Server running on port', process.env.PORT || 3000));
