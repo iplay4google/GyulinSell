@@ -1,38 +1,33 @@
 const form = document.getElementById("loginForm");
 
 form.addEventListener("submit", async (e) => {
-  e.preventDefault();
 
-  const email = form.email.value;
-  const password = form.password.value;
+e.preventDefault();
 
-  const res = await fetch("/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  });
+const identifier = document.getElementById("identifier").value;
+const password = document.getElementById("password").value;
 
-  const data = await res.json();
+const res = await fetch("/login", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ identifier, password })
+});
 
-  if (data.error) {
-    alert(data.error);
-    return;
-  }
+const data = await res.json();
 
-  // OWNER LOGIN
-  if (data.role === "owner") {
-    localStorage.setItem("role", "owner");
-    window.location.href = "/owner.html";
-    return;
-  }
+if(data.error){
+alert(data.error);
+return;
+}
 
-  // NORMAL USER LOGIN
-  if (data.role === "user") {
-    localStorage.setItem("user", JSON.stringify({
-      username: data.username,
-      email: data.email
-    }));
+if(data.role === "owner"){
+window.location.href = "/owner.html";
+return;
+}
 
-    window.location.href = "/shop.html";
-  }
+if(data.role === "user"){
+localStorage.setItem("user", JSON.stringify(data));
+window.location.href = "/shop.html";
+}
+
 });
