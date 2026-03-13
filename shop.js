@@ -1,50 +1,30 @@
-// Sample products
-const products = [
-  { id: 1, name: 'Product A', price: 10 },
-  { id: 2, name: 'Product B', price: 20 },
-];
+document.addEventListener('DOMContentLoaded', () => {
+    const stripe = Stripe('pk_test_51TAFbYJWa2hSujubEpga5DiWoz6ppOBYdaCHkSCNRS5s6iszioXAxldWtYNdr9a9DSn6N5XURu3eb7kRffHmKkEw00qhe0uBsR');
 
-const productsDiv = document.getElementById('products');
-const cartUl = document.getElementById('cart');
-const buyBtn = document.getElementById('buy');
+    document.querySelectorAll('.buy-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const item = {
+                price_data: {
+                    currency: 'usd',
+                    product_data: { name: button.dataset.name },
+                    unit_amount: parseInt(button.dataset.price)
+                },
+                quantity: 1
+            };
 
-let cart = [];
+            const res = await fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ items: [item] })
+            });
 
-// Render products
-products.forEach(product => {
-  const div = document.createElement('div');
-  div.innerHTML = `
-    <strong>${product.name}</strong> - $${product.price}
-    <button data-id="${product.id}">Add to cart</button>
-  `;
-  productsDiv.appendChild(div);
+            const data = await res.json();
+            window.location.href = data.url; // redirect to Stripe Checkout
+        });
+    });
 
-  div.querySelector('button').addEventListener('click', () => {
-    const existing = cart.find(item => item.id === product.id);
-    if (existing) existing.quantity++;
-    else cart.push({ ...product, quantity: 1 });
-    renderCart();
-  });
-});
-
-// Render cart
-function renderCart() {
-  cartUl.innerHTML = '';
-  cart.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = `${item.name} x ${item.quantity} = $${item.price * item.quantity}`;
-    cartUl.appendChild(li);
-  });
-}
-
-// Buy button
-buyBtn.addEventListener('click', async () => {
-  if (cart.length === 0) return alert('Cart is empty');
-  const response = await fetch('/create-checkout-session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items: cart })
-  });
-  const data = await response.json();
-  if (data.url) window.location = data.url;
+    // Auth buttons (guest/login/signup)
+    document.getElementById('guest-btn').onclick = () => alert('Browsing as guest');
+    document.getElementById('login-btn').onclick = () => window.location.href = 'login.html';
+    document.getElementById('signup-btn').onclick = () => window.location.href = 'signup.html';
 });

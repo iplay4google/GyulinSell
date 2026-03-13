@@ -1,18 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GyulinSell Shop</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GyulinSell Shop</title>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="shop.js" defer></script>
+<style>
+  body { font-family: sans-serif; margin: 20px; }
+  .product { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+  button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+</style>
 </head>
 <body>
-  <h1>Welcome to GyulinSell</h1>
 
-  <div id="products"></div>
+<h1>GyulinSell Shop</h1>
 
-  <h3>Cart</h3>
-  <ul id="cart"></ul>
-  <button id="buy">Buy</button>
+<div id="auth-buttons">
+  <button id="guest-btn">Join as Guest</button>
+  <button id="login-btn">Already have an account?</button>
+  <button id="signup-btn">Make an account</button>
+</div>
 
-  <script src="shop.js"></script>
+<div id="products">
+  <div class="product">
+    <h3>Product A - $10</h3>
+    <button class="buy-btn" data-name="Product A" data-price="1000">Buy</button>
+  </div>
+  <div class="product">
+    <h3>Product B - $20</h3>
+    <button class="buy-btn" data-name="Product B" data-price="2000">Buy</button>
+  </div>
+</div>
+
 </body>
 </html>
