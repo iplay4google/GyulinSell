@@ -1,0 +1,24 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.navbar {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background-color: #222;
+}
+.navbar button {
+  color: white;
+  background-color: #444;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+.navbar button:hover {
+  background-color: #666;
+}
+.container {
+  padding: 20px;
+}
