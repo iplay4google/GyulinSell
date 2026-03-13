@@ -1,42 +1,59 @@
 let isGuest = false;
 
-// Handle "Join as Guest" button click
-document.getElementById("guestBtn").addEventListener("click", () => {
-    isGuest = true;
-    loadProducts();
-});
-
-// Sample products array (replace with your real products if needed)
+// Dummy products array (replace with your server data)
 const products = [
-    { name: "Product 1", price: 5 },
-    { name: "Product 2", price: 10 },
-    { name: "Product 3", price: 15 }
+  { id: 1, name: "Product 1", price: 10 },
+  { id: 2, name: "Product 2", price: 15 },
+  { id: 3, name: "Product 3", price: 20 }
 ];
 
-// Function to load products into the page
-function loadProducts() {
-    const container = document.getElementById("productsContainer");
-    container.innerHTML = "";
+const productsContainer = document.getElementById("productsContainer");
+const guestBtn = document.getElementById("guestBtn");
+const signInBtn = document.getElementById("signInBtn");
+const signUpBtn = document.getElementById("signUpBtn");
 
-    products.forEach(p => {
-        const productDiv = document.createElement("div");
-        productDiv.className = "product";
-        productDiv.innerHTML = `
-            <h3>${p.name}</h3>
-            <p>€${p.price}</p>
-            <button class="buy-btn" ${isGuest ? 'style="display:none;"' : ''}>Buy</button>
-        `;
-        container.appendChild(productDiv);
-    });
-
-    // Optional: show message for guests
-    if (isGuest) {
-        const msg = document.createElement("p");
-        msg.style.color = "red";
-        msg.textContent = "You are browsing as a guest. Buy buttons are disabled.";
-        container.prepend(msg);
+// Render products
+function renderProducts() {
+  productsContainer.innerHTML = "";
+  products.forEach(product => {
+    const productDiv = document.createElement("div");
+    productDiv.className = "product";
+    productDiv.innerHTML = `
+      <h3>${product.name}</h3>
+      <p>Price: €${product.price}</p>
+    `;
+    
+    if (!isGuest) {
+      const buyBtn = document.createElement("button");
+      buyBtn.textContent = "Buy";
+      buyBtn.onclick = () => alert(`You bought ${product.name}!`);
+      productDiv.appendChild(buyBtn);
     }
+    
+    productsContainer.appendChild(productDiv);
+  });
 }
 
-// Initial load for normal visitors
-loadProducts();
+// Guest button click
+guestBtn.onclick = () => {
+  isGuest = true;
+  renderProducts();
+  alert("You joined as a guest. You can browse products but cannot buy.");
+}
+
+// Sign In button click
+signInBtn.onclick = () => {
+  isGuest = false;
+  renderProducts();
+  alert("Sign in clicked. Implement your login here.");
+}
+
+// Sign Up button click
+signUpBtn.onclick = () => {
+  isGuest = false;
+  renderProducts();
+  alert("Sign up clicked. Implement your signup here.");
+}
+
+// Initial render
+renderProducts();

@@ -1,204 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fun Ordering Website</title>
-<script src="https://js.stripe.com/v3/"></script>
-<style>
-body { font-family: 'Comic Sans MS', cursive, sans-serif; background: #FFFAE3; text-align: center; margin: 0; }
-h1 { color: #FF5733; }
-.item { display: inline-block; margin: 20px; padding: 10px; border: 2px solid #FF5733; border-radius: 15px; background: #FFF0F5; width: 150px; }
-.item img { width: 100px; height: 100px; }
-.item button { background: #33FF57; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-#cart { margin-top: 30px; padding: 20px; border-top: 3px dashed #FF5733; }
-table { margin: 20px auto; border-collapse: collapse; }
-th, td { border: 1px solid #FF5733; padding: 8px 12px; }
-input[type=text], input[type=number] { padding: 5px; margin: 2px; border-radius: 5px; border: 1px solid #FF5733; }
-button.edit, button.remove, button.add { padding: 5px 10px; margin: 2px; border-radius: 5px; cursor: pointer; }
-button.add { background: #33FF57; color: white; border: none; }
-button.edit { background: gold; color: black; border: none; }
-button.remove { background: red; color: white; border: none; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GyulinSell</title>
+  <link rel="stylesheet" href="shop.css">
 </head>
 <body>
+  <div class="sidebar">
+    <button id="guestBtn">Join as Guest</button>
+    <button id="signInBtn">Sign In</button>
+    <button id="signUpBtn">Sign Up</button>
+  </div>
 
-<h1>Welcome, <span id="user"></span>!</h1>
-<button onclick="logout()">Log Out</button>
+  <div class="main-content">
+    <h1>Products</h1>
+    <div id="productsContainer"></div>
+  </div>
 
-<!-- Owner Dashboard -->
-<div id="owner-dashboard" style="display:none;">
-    <h2>Product Management</h2>
-    <table id="product-table">
-        <tr><th>Name</th><th>Price</th><th>Actions</th></tr>
-    </table>
-    <h3>Add New Product</h3>
-    <input type="text" id="new-name" placeholder="Product Name">
-    <input type="number" id="new-price" placeholder="Price">
-    <button class="add" onclick="pickImageForNewProduct()">Pick Image</button>
-
-    <h2>User Orders</h2>
-    <table id="user-orders">
-        <tr><th>Username</th><th>Orders</th></tr>
-    </table>
-</div>
-
-<!-- Normal User Shop View -->
-<div id="shop-view">
-    <div id="products-container"></div>
-    <div id="cart">
-      <h2>Your Cart</h2>
-      <ul id="cart-items"></ul>
-      <p>Total: €<span id="total">0</span></p>
-      <button onclick="payNow()">Pay Now</button>
-    </div>
-</div>
-
-<script>
-let products = JSON.parse(localStorage.getItem('products')) || [
-    {name: 'Toy 1', price: 5, img: 'https://via.placeholder.com/100'},
-    {name: 'Toy 2', price: 3, img: 'https://via.placeholder.com/100'},
-    {name: 'Snack 1', price: 2, img: 'https://via.placeholder.com/100'}
-];
-localStorage.setItem('products', JSON.stringify(products));
-
-let cart = [];
-let total = 0;
-
-window.onload = function() {
-    const user = localStorage.getItem('loggedInUser');
-    if (!user) window.location.href = 'login.html';
-    document.getElementById('user').textContent = user;
-
-    if (user === 'Owner3123') {
-        document.getElementById('shop-view').style.display = 'none';
-        document.getElementById('owner-dashboard').style.display = 'block';
-        renderProductsTable();
-        showAllUsers();
-    } else {
-        document.getElementById('shop-view').style.display = 'block';
-        renderUserProducts();
-    }
-}
-
-function logout() { localStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }
-
-// ------------------ Owner Functions ------------------
-function renderProductsTable() {
-    const table = document.getElementById('product-table');
-    table.innerHTML = '<tr><th>Name</th><th>Price</th><th>Actions</th></tr>';
-    products.forEach((p, i) => {
-        let tr = document.createElement('tr');
-        tr.innerHTML = `<td>${p.name}</td><td>€${p.price}</td>
-        <td><button class="edit" onclick="editProduct(${i})">Edit</button>
-        <button class="remove" onclick="removeProduct(${i})">Remove</button></td>`;
-        table.appendChild(tr);
-    });
-}
-
-function pickImageForNewProduct() {
-    const name = document.getElementById('new-name').value;
-    const price = parseFloat(document.getElementById('new-price').value);
-    if (!name || isNaN(price)) { alert('Enter valid name and price'); return; }
-
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = evt => {
-            products.push({name, price, img: evt.target.result});
-            localStorage.setItem('products', JSON.stringify(products));
-            renderProductsTable();
-            document.getElementById('new-name').value = '';
-            document.getElementById('new-price').value = '';
-        };
-        reader.readAsDataURL(file);
-    };
-    fileInput.click();
-}
-
-function editProduct(index) {
-    const newName = prompt('New name', products[index].name);
-    const newPrice = prompt('New price', products[index].price);
-    if (newName) products[index].name = newName;
-    const priceNum = parseFloat(newPrice);
-    if (!isNaN(priceNum)) products[index].price = priceNum;
-
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = evt => {
-            products[index].img = evt.target.result;
-            localStorage.setItem('products', JSON.stringify(products));
-            renderProductsTable();
-        };
-        reader.readAsDataURL(file);
-    };
-    fileInput.click();
-
-    localStorage.setItem('products', JSON.stringify(products));
-    renderProductsTable();
-}
-
-function removeProduct(index) { if(confirm('Remove '+products[index].name+'?')) { products.splice(index,1); localStorage.setItem('products',JSON.stringify(products)); renderProductsTable(); } }
-
-function showAllUsers() {
-    const accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-    const orders = JSON.parse(localStorage.getItem('orders')) || {};
-    const table = document.getElementById('user-orders');
-    table.innerHTML = '<tr><th>Username</th><th>Orders</th></tr>';
-    for (const user in accounts) {
-        if (user==='Owner3123') continue;
-        let tr = document.createElement('tr');
-        let tdUser = document.createElement('td'); tdUser.textContent=user;
-        let tdOrders = document.createElement('td');
-        if (orders[user] && orders[user].length>0) {
-            orders[user].forEach((o,i)=>{
-                let div=document.createElement('div');
-                div.innerHTML=`Items: ${o.items.map(it=>it.name).join(', ')} - Total: €${o.total} `;
-                let removeBtn=document.createElement('button');
-                removeBtn.textContent='Remove Order'; removeBtn.style.background='red'; removeBtn.style.color='white'; removeBtn.style.marginLeft='5px';
-                removeBtn.onclick=()=>removeOrder(user,i); div.appendChild(removeBtn);
-                tdOrders.appendChild(div);
-            });
-        } else { tdOrders.textContent='No orders'; }
-        tr.appendChild(tdUser); tr.appendChild(tdOrders); table.appendChild(tr);
-    }
-}
-function removeOrder(username,index) { let orders=JSON.parse(localStorage.getItem('orders'))||{}; if(orders[username]){ orders[username].splice(index,1); localStorage.setItem('orders',JSON.stringify(orders)); showAllUsers(); } }
-
-// ------------------ User Functions ------------------
-function renderUserProducts() {
-    const container=document.getElementById('products-container'); container.innerHTML='';
-    products.forEach(p=>{
-        let div=document.createElement('div'); div.className='item';
-        div.innerHTML=`<img src='${p.img}' alt='${p.name}'><p>${p.name} - €${p.price}</p>
-        <button onclick='addToCart("${p.name}",${p.price})'>Order</button>`;
-        container.appendChild(div);
-    });
-}
-function addToCart(name,price){ cart.push({name,price}); total+=price; updateCart(); }
-function updateCart(){ const list=document.getElementById('cart-items'); list.innerHTML=''; cart.forEach(item=>{let li=document.createElement('li'); li.textContent=`${item.name} - €${item.price}`; list.appendChild(li); }); document.getElementById('total').textContent=total; }
-
-// ------------------ Stripe Checkout ------------------
-async function payNow() {
-    if(cart.length===0){ alert('Cart empty'); return; }
-    const response=await fetch('/create-checkout-session',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({amount:total*100, items: cart, username: localStorage.getItem('loggedInUser')})
-    });
-    const session = await response.json();
-    const stripe = Stripe('pk_test_51TAFbYJWa2hSujubEpga5DiWoz6ppOBYdaCHkSCNRS5s6iszioXAxldWtYNdr9a9DSn6N5XURu3eb7kRffHmKkEw00qhe0uBsR'); 
-    await stripe.redirectToCheckout({ sessionId: session.id });
-}
-</script>
+  <script src="shop.js"></script>
 </body>
 </html>
