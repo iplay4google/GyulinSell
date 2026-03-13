@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In - Fun Ordering Site</title>
+<style>
+    body { font-family: 'Comic Sans MS', cursive, sans-serif; background: #FFFAE3; text-align: center; margin: 0; }
+    h1 { color: #FF5733; }
+    input { padding: 10px; margin: 5px; border-radius: 10px; border: 1px solid #FF5733; }
+    button { background: #33FF57; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Sign In</h1>
+<input type="text" id="username" placeholder="Username"><br>
+<input type="password" id="password" placeholder="Password"><br>
+<button onclick="login()">Sign In</button>
+<p id="msg" style="color:red;"></p>
+<p>Don't have an account? <a href="index.html">Sign Up</a></p>
+
+<script>
+// Pre-set special Owner account
+let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
+if (!accounts['Owner3123']) {
+    accounts['Owner3123'] = 'fTbo2bfIp3ThvyGC';
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+}
+
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
+
+    if (accounts[username] && accounts[username] === password) {
+        localStorage.setItem('loggedInUser', username);
+        window.location.href = 'shop.html';
+    } else {
+        document.getElementById('msg').textContent = 'Invalid username or password';
+    }
+}
+</script>
+</body>
+</html>
