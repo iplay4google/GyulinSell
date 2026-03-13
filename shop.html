@@ -3,19 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GyulinSell</title>
+  <title>GyulinSell Shop</title>
   <link rel="stylesheet" href="shop.css">
 </head>
 <body>
-  <div class="sidebar">
-    <button id="guestBtn">Join as Guest</button>
-    <button id="signInBtn">Sign In</button>
-    <button id="signUpBtn">Sign Up</button>
-  </div>
+  <div id="container">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <button id="guestBtn">Join as Guest</button>
+      <button id="signInBtn">Sign In</button>
+      <button id="signUpBtn">Sign Up</button>
+    </div>
 
-  <div class="main-content">
-    <h1>Products</h1>
-    <div id="productsContainer"></div>
+    <!-- Main content -->
+    <div id="main">
+      <h1>Products</h1>
+      <div id="products"></div>
+    </div>
   </div>
 
   <script src="shop.js"></script>

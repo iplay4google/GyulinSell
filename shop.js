@@ -1,59 +1,29 @@
-let isGuest = false;
-
-// Dummy products array (replace with your server data)
+// Sample products data
 const products = [
-  { id: 1, name: "Product 1", price: 10 },
-  { id: 2, name: "Product 2", price: 15 },
-  { id: 3, name: "Product 3", price: 20 }
+  { id: 1, name: "Product 1", price: "$10" },
+  { id: 2, name: "Product 2", price: "$15" },
+  { id: 3, name: "Product 3", price: "$20" },
+  { id: 4, name: "Product 4", price: "$25" },
 ];
 
-const productsContainer = document.getElementById("productsContainer");
-const guestBtn = document.getElementById("guestBtn");
-const signInBtn = document.getElementById("signInBtn");
-const signUpBtn = document.getElementById("signUpBtn");
+// Render products in the main area
+const productsDiv = document.getElementById("products");
+products.forEach(product => {
+  const div = document.createElement("div");
+  div.className = "product";
+  div.innerHTML = `<h3>${product.name}</h3><p>${product.price}</p>`;
+  productsDiv.appendChild(div);
+});
 
-// Render products
-function renderProducts() {
-  productsContainer.innerHTML = "";
-  products.forEach(product => {
-    const productDiv = document.createElement("div");
-    productDiv.className = "product";
-    productDiv.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>Price: €${product.price}</p>
-    `;
-    
-    if (!isGuest) {
-      const buyBtn = document.createElement("button");
-      buyBtn.textContent = "Buy";
-      buyBtn.onclick = () => alert(`You bought ${product.name}!`);
-      productDiv.appendChild(buyBtn);
-    }
-    
-    productsContainer.appendChild(productDiv);
-  });
-}
+// Button functionality
+document.getElementById('guestBtn').addEventListener('click', () => {
+  alert("Guest mode enabled. You can view products but can't buy.");
+});
 
-// Guest button click
-guestBtn.onclick = () => {
-  isGuest = true;
-  renderProducts();
-  alert("You joined as a guest. You can browse products but cannot buy.");
-}
+document.getElementById('signInBtn').addEventListener('click', () => {
+  alert("Redirect to Sign In page (add your actual login functionality here).");
+});
 
-// Sign In button click
-signInBtn.onclick = () => {
-  isGuest = false;
-  renderProducts();
-  alert("Sign in clicked. Implement your login here.");
-}
-
-// Sign Up button click
-signUpBtn.onclick = () => {
-  isGuest = false;
-  renderProducts();
-  alert("Sign up clicked. Implement your signup here.");
-}
-
-// Initial render
-renderProducts();
+document.getElementById('signUpBtn').addEventListener('click', () => {
+  alert("Redirect to Sign Up page (add your actual registration functionality here).");
+});
