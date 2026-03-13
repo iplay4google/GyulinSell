@@ -1,54 +1,37 @@
+require('dotenv').config();
 const express = require('express');
-require("dotenv").config();
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const app = express();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static(__dirname)); // Serve HTML & JS from root
 app.use(express.json());
-app.use(cors());
 
-// Serve all files in your project folder
-app.use(express.static(path.join(__dirname)));
-
-// Ensure orders.json exists
-const ordersFile = 'orders.json';
-if (!fs.existsSync(ordersFile)) {
-    fs.writeFileSync(ordersFile, '{}');
-}
-let paidOrders = JSON.parse(fs.readFileSync(ordersFile, 'utf8'));
-
-// Stripe checkout
 app.post('/create-checkout-session', async (req, res) => {
-    const { amount, items, username } = req.body;
+  const { items } = req.body;
+
+  try {
     const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: items.map(i => ({
-            price_data: {
-                currency: 'eur',
-                product_data: { name: i.name },
-                unit_amount: i.price * 100
-            },
-            quantity: 1
-        })),
-        mode: 'payment',
-        success_url: 'http://localhost:3000/success.html',
-        cancel_url: 'http://localhost:3000/cancel.html',
+      payment_method_types: ['card'],
+      line_items: items.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: item.name },
+          unit_amount: item.price * 100,
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/success.html`,
+      cancel_url: `${process.env.FRONTEND_URL}/shop.html`,
     });
 
-    // Save paid order in local JSON (simplified for testing)
-    if (!paidOrders[username]) paidOrders[username] = [];
-    paidOrders[username].push({ items, total: amount / 100, paid: true });
-    fs.writeFileSync(ordersFile, JSON.stringify(paidOrders, null, 2));
-
-    res.json({ id: session.id });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Optional: redirect / to shop.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'shop.html'));
-});
-
-// Start server
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

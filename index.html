@@ -1,61 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>GyulinSell</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 200px;
-            height: 100%;
-            background: #eee;
-            padding: 20px;
-        }
-
-        .sidebar button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-
-        .product {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .product button {
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GyulinSell</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+  .container { display: flex; height: 100vh; align-items: center; justify-content: center; }
+  .buttons { display: flex; flex-direction: column; gap: 20px; }
+  button { padding: 15px 30px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; }
+  button:hover { opacity: 0.9; }
+  .guest { background-color: #6c757d; color: white; }
+  .login { background-color: #007bff; color: white; }
+  .signup { background-color: #28a745; color: white; }
+</style>
 </head>
 <body>
-    <div class="sidebar">
-        <button id="guestBtn">Join as Guest</button>
-    </div>
+<div class="container">
+  <div class="buttons">
+    <button class="signup" onclick="location.href='signup.html'">Make an account?</button>
+    <button class="login" onclick="location.href='login.html'">Already have an account?</button>
+    <button class="guest" onclick="becomeGuest()">Become a guest</button>
+  </div>
+</div>
 
-    <div class="content">
-        <h1>Welcome to GyulinSell</h1>
-        <div id="productsContainer">
-            <!-- Products will load here -->
-        </div>
-    </div>
-
-    <script src="shop.js"></script>
+<script>
+function becomeGuest() {
+  sessionStorage.setItem('guest', 'true');
+  window.location.href = 'shop.html';
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,15 @@
+<h1>Owner Dashboard</h1>
+<ul id="orders"></ul>
+
+<script>
+fetch('/owner/orders')
+  .then(r => r.json())
+  .then(orders => {
+    const ul = document.getElementById('orders');
+    orders.forEach(o => {
+      const li = document.createElement('li');
+      li.textContent = `${o.customerName} (${o.customerEmail}) - ${JSON.stringify(o.cart)}`;
+      ul.appendChild(li);
+    });
+  });
+</script>

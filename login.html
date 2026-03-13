@@ -3,42 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In - Fun Ordering Site</title>
+<title>Login - GyulinSell</title>
 <style>
-    body { font-family: 'Comic Sans MS', cursive, sans-serif; background: #FFFAE3; text-align: center; margin: 0; }
-    h1 { color: #FF5733; }
-    input { padding: 10px; margin: 5px; border-radius: 10px; border: 1px solid #FF5733; }
-    button { background: #33FF57; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+  body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;}
+  form { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+  input { display: block; margin: 15px 0; padding: 10px; width: 250px; }
+  button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
 </style>
 </head>
 <body>
-<h1>Sign In</h1>
-<input type="text" id="username" placeholder="Username"><br>
-<input type="password" id="password" placeholder="Password"><br>
-<button onclick="login()">Sign In</button>
-<p id="msg" style="color:red;"></p>
-<p>Don't have an account? <a href="index.html">Sign Up</a></p>
+<form id="loginForm">
+  <h2>Login</h2>
+  <input type="text" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button type="submit">Login</button>
+</form>
 
 <script>
-// Pre-set special Owner account
-let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-if (!accounts['Owner3123']) {
-    accounts['Owner3123'] = 'fTbo2bfIp3ThvyGC';
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-}
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-
-    if (accounts[username] && accounts[username] === password) {
-        localStorage.setItem('loggedInUser', username);
-        window.location.href = 'shop.html';
-    } else {
-        document.getElementById('msg').textContent = 'Invalid username or password';
-    }
-}
+  if(email === 'Owner3123' && password === 'fTbo2bfIp3ThvyGC') {
+    alert('Owner access granted!');
+    window.location.href = 'owner.html'; // secret owner page
+  } else {
+    alert('Logged in as normal user');
+    sessionStorage.setItem('guest', 'false');
+    window.location.href = 'shop.html';
+  }
+});
 </script>
 </body>
 </html>

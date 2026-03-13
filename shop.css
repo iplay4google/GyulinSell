@@ -13,6 +13,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative; /* make sure it's not hidden */
+  z-index: 10;
 }
 
 #sidebar button {
@@ -37,6 +39,7 @@
   background-color: #ecf0f1;
 }
 
+/* Products grid */
 #products {
   display: flex;
   flex-wrap: wrap;
