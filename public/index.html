@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>GyulinSell</title>
-    <link rel="stylesheet" href="css/index.css">
+<meta charset="UTF-8">
+<title>GyulinSell</title>
+<link rel="stylesheet" href="/css/index.css">
 </head>
+
 <body>
-    <div class="sidebar">
-        <button onclick="location.href='login.html'">Already have an account?</button>
-        <button onclick="location.href='signup.html'">Make an account</button>
-        <button onclick="location.href='shop.html?guest=true'">Become a guest</button>
-    </div>
-    <div class="content">
-        <h1>Welcome to GyulinSell!</h1>
-        <p>Browse amazing products by signing up, logging in, or as a guest!</p>
-    </div>
+
+<div class="sidebar">
+    <button onclick="location.href='login.html'">Already have an account?</button>
+    <button onclick="location.href='signup.html'">Make an account</button>
+    <button onclick="enterGuest()">Become a guest</button>
+</div>
+
+<div class="content">
+    <h1>Welcome to GyulinSell!</h1>
+    <p>Browse amazing products by signing up, logging in, or as a guest!</p>
+</div>
+
+<script>
+function enterGuest() {
+    localStorage.setItem("isGuest", "true");
+    window.location.href = "shop.html";
+}
+</script>
+
 </body>
 </html>

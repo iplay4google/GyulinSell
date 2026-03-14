@@ -1,38 +1,49 @@
-// public/login.js
-const form = document.getElementById('loginForm');
+// public/js/login.js
 
-form.addEventListener('submit', async (e) => {
+const form = document.getElementById("loginForm");
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const identifier = document.getElementById('identifier').value.trim();
-  const password = document.getElementById('password').value.trim();
+  const identifier = document.getElementById("identifier").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   if (!identifier || !password) {
-    alert('All fields are required!');
+    alert("Please fill in all fields.");
     return;
   }
 
   try {
-    const res = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier, password })
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        identifier: identifier,
+        password: password
+      })
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
-    if (res.ok) {
-      if (data.role === 'owner') {
-        window.location.href = '/owner.html';
-      } else if (data.role === 'user') {
-        localStorage.setItem('user', JSON.stringify(data));
-        window.location.href = '/shop.html';
-      }
-    } else {
-      alert(data.message);
+    if (!response.ok) {
+      alert(data.message || "Login failed");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    alert('Error logging in');
+
+    // save user session
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // redirect based on role
+    if (data.role === "owner") {
+      window.location.href = "/owner.html";
+    } else {
+      window.location.href = "/shop.html";
+    }
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Server error. Try again later.");
   }
 });
